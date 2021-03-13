@@ -4,6 +4,7 @@
 #include <vector>
 using namespace std;
 
+
 void readInput(ifstream &file, string &sequence, string &name) {
     vector<string> lines;
     string templine;
@@ -23,12 +24,20 @@ void readInput(ifstream &file, string &sequence, string &name) {
 int main(int argc, char *argv[]) {
     ifstream input(argv[1]);
     if (!input.is_open()) {
-        cout << "not  open" << endl;
+        cout << "not  open 1" << endl;
         return 1;
     }
+    ifstream input2(argv[2]);
+    if (!input2.is_open()){
+        cout << "not  open 2 " << endl;
+        return 1;
+    }
+    string alphabet;
+    getline(input2,alphabet);
+    cout << alphabet<< endl;
     string nameOfInput;
     string sequence;
     readInput(input, sequence, nameOfInput);
-    cout << sequence << endl << nameOfInput << endl;
+    cout << sequence << endl << "name " <<nameOfInput << endl;
     return 0;
 }
