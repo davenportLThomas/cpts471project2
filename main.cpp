@@ -15,7 +15,7 @@ void readInput(ifstream &file, string &sequence, string &name) {
         lines.push_back(templine);
         getline(file, templine);
     }
-    for(int i = 0; i< lines.size()-1; i++){
+    for(size_t i = 0; i< lines.size()-1; i++){
         templine = lines[i];
         sequence += templine;
     }
@@ -24,12 +24,12 @@ void readInput(ifstream &file, string &sequence, string &name) {
 int main(int argc, char *argv[]) {
     ifstream input(argv[1]);
     if (!input.is_open()) {
-        cout << "not  open 1" << endl;
+        cout << "not  open 1: alphabet" << endl;
         return 1;
     }
     ifstream input2(argv[2]);
     if (!input2.is_open()){
-        cout << "not  open 2 " << endl;
+        cout << "not  open 2: alphabet " << endl;
         return 1;
     }
     string alphabet;
