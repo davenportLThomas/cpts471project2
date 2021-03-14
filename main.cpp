@@ -2,6 +2,8 @@
 #include <fstream>
 #include <string>
 #include <vector>
+#include "tree.cpp"
+
 using namespace std;
 
 
@@ -39,5 +41,7 @@ int main(int argc, char *argv[]) {
     string sequence;
     readInput(input, sequence, nameOfInput);
     cout << sequence << endl << "name " <<nameOfInput << endl;
+    Tree tree(sequence);
+
     return 0;
 }
