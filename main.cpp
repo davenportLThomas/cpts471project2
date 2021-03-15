@@ -40,6 +40,7 @@ int main(int argc, char *argv[]) {
     string nameOfInput;
     string sequence;
     readInput(input, sequence, nameOfInput);
+  
     cout << "name " <<nameOfInput << endl;
     Tree tree(sequence);
 
