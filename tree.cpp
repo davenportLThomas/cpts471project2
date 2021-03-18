@@ -1,49 +1,67 @@
 #include<iostream>
 #include<vector>
 #include<string>
+#include<utility>
 
 using namespace std;
 
 class Tree{
 	struct Node{
 		string value;
+		int id;
+		int string_depth;
+		pair<int,int> start;//not sure what this is for yet
 		Node *uPrime;//parent
 		//we may need more children, perhaps a vector of em? three is good for a start
-		vector<Node*> u;//handles up to 3 children
+		vector<Node*> u;//children
 		Node *v;//suffix link
-		Node *vPrime;//suffix link of uPrime, if it exists
-		int leafNumber;
 	};
 
 	string sequence; //whole sequence
 	string currentSequence; //the sequence after we drop the first letter
-	Node *head;
+	Node *root;
 	Node *current; //where we are in the tree
 	int nodeCount;
 
 	void createHead()
 	{
-		head = new Node;
-		head->vPrime = nullptr; //this will not change
-		head->v = nullptr;
-		current = head;
-		current->value = "HEAD";
-		current->leafNumber = -1;//the head it -1
+		root = new Node;
+		root->v = nullptr;
+		current = root;
+		current->value = "ROOT";
+		current->id = -1;//the head it -1
+		current->string_depth = 0;
 		nodeCount = 1;
 		//lets build a tree
-		buildTree();
+		buildNaiveTree();
 	};
 
-	void buildTree()
+	void buildNaiveTree()
 	{
 		//findNode function here
+		Node *thisNode = findNode(root);
+		cout << "This Node: " << thisNode->value << endl;
 		addChild();
 	}
 
-	void findNode()
+	Node *findNode(Node *tryThis)
 	{
-		//use this function to find the proper node, cases can go here
-		//set currentNode appropriately
+		//check the current string in the node for a match, this algo doesn't feel right
+		for(uint32_t i = 0 ; i < currentSequence.size(); i++)
+		{
+			if(currentSequence[i] != tryThis->value[i])
+				break;
+			return(tryThis);
+		}
+		//actually traverse the tree is match is not found
+		if(tryThis != nullptr)
+		{
+			for(uint32_t i = 0; i < tryThis->u.size(); i++)
+			{
+				findNode(tryThis->u[i]);
+			}
+		}
+		return root;
 	}
 
 	void addChild()
@@ -59,7 +77,7 @@ class Tree{
 
 	void printTree()//this is currently VERY VERY rudimentary
 	{
-		cout << "Head: " << head->value << endl;
+		cout << "ROOT: " << root->value << endl;
 		cout << current->value << endl;
 
 	}
