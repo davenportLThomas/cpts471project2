@@ -10,7 +10,7 @@ struct Node{
     // create the new node with the parents and suffix
     Node(std::string const &_input, Node *_uPrime, size_t _i= std::string::npos,size_t _j = std::string::npos);//when build the node we give
     void findPath(size_t i);
-    size_t compareInput(size_t i) const;
+    void compareInput(size_t i);
     void print() const;// call print won't change the node
     std::string const &input;
     Node *uPrime;//parent

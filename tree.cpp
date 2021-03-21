@@ -25,12 +25,18 @@ void Node::print() const {
 //    for(size_t c = 0; c < u.size(); ++c){
 //        u[c] -> print();
 //    }
+    if(uPrime != nullptr){
+        cout<< " ( i = " << i
+            << ", j = " << j
+            << ", node_id = "<< node_id
+            << ", leaf_id= " << leaf_id
+            << ")" << input.substr(i,j-i)<< endl;
+
+    }
     for (auto const kv: u){
         kv.second->print();
     }
-    if(uPrime != nullptr){
-        cout << input.substr(i)<< endl;
-    }
+
 
 }
 void Tree::createHead() {
@@ -72,20 +78,37 @@ void Node::findPath(size_t i) {
         u[c] = new Node(input,this,i); // parts a and b
         return ;
     }// if this not in the chidren
-    size_t j = u[c]-> compareInput(i); // j will be the npos if the edge label is exhausted
-    cout<<"findPath(" << i << " ('" << input[i]<< "')) j=" << j << endl; // print the char
-    // need to do part d in findpath if mismatch
+    u[c]-> compareInput(i); // j will be the npos if the edge label is exhausted
+//    cout<<"findPath(" << i << " ('" << input[i]<< "')) j=" << j << endl; // print the char
 }
-size_t Node::compareInput(size_t iParent) const{
+//compareInput will do: if mismatch, break the edge, create a new internal node, create new leaf for s under that node
+//then return
+void Node::compareInput(size_t iParent){
     if(iParent == i){
-        return j; // return end of the child
+        return ; // return end of the child
     }
-    for(size_t iChild = i; iChild < j; iParent++, iChild++){
-        if(input[iChild] != input[iParent]){
-            return iParent;
+    //remember where the parent start and end
+    size_t iChild;
+    size_t jParent;
+    for(iChild = i, jParent =iParent ; iChild < j; jParent++, iChild++){
+        if(input[iChild] != input[jParent]){
+            break;
         }
     }
-    return iParent ;
+    //the distance between iChild and i is the length of the match
+    //if iChild = j, then it's a compelete match otherwise split.
+    size_t matchLength = iChild - i;
+    if(iChild == j){
+        findPath(i+matchLength);
+        return;
+    }
+    //split  tail become the child
+    Node* tail = new Node(input,this,i+matchLength);
+    cout<< "node :: compareInput( iParent = " << iParent << ")" << endl;
+    tail->print();
+    u[input[i+matchLength]] = tail;
+    j = i + matchLength;
+    findPath(i+matchLength);
 }
 
 void Tree::print() const//this is currently VERY VERY rudimentary
