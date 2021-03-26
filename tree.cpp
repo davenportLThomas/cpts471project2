@@ -1,133 +1,139 @@
-#include"tree.h"
 #include<iostream>
-#include<vector>
 #include<string>
-#include<utility>
-
+#include<vector>
 using namespace std;
-int Node::max_leaves = 0;
-int Node::max_nodes = 0;
-Node::Node(string const &_input, Node *_uPrime, size_t _i,size_t _j):
-input(_input),
-uPrime(_uPrime),
-i(_i == string::npos ? 0: _i),// if we dont have the arg, return 0;
-j(_j== string::npos ? input.size(): _j),
-node_id(max_nodes++),
-leaf_id(max_leaves++)
-{
-if(uPrime == nullptr) {
-    //this is the root
-}else {
-   // this is not the root
-}
-}
-void Node::print() const {
-//    for(size_t c = 0; c < u.size(); ++c){
-//        u[c] -> print();
-//    }
-    if(uPrime != nullptr){
-        cout<< " ( i = " << i
-            << ", j = " << j
-            << ", node_id = "<< node_id
-            << ", leaf_id= " << leaf_id
-            << ")" << input.substr(i,j-i)<< endl;
 
-    }
-    for (auto const kv: u){
-        kv.second->print();
-    }
+class Tree{
+	string sequence;
+	long unsigned int seqPosition = 0;
+	struct Node{
+		Node *parent; //uPrime
+		vector<Node*> children;
+		string object;
+		//int i; //starting member of sequence
+		//int j; //ending member of sequence
+		int node_id;
+		int leaf_id;
+	};
+	Node *root;
+	Node *current;
+	int nodeCount = 0;
 
 
-}
-void Tree::createHead() {
-//    root = new Node;
-//    root->v = nullptr;
-//    current = root;
-//    current->value = "ROOT";
-//    current->id = -1;//the head it -1
-//    current->string_depth = 0;
-//    nodeCount = 1;
-//    //lets build a tree
-//    buildNaiveTree();
+	void createRoot()
+	{
+		root = new Node;
+		current = root;
+		current->parent = nullptr;
+		current->object = "--";
+		current->node_id = nodeCount;
+		nodeCount++;
+	}
+
+	Node *findNode(Node *tryThis)
+	{
+		for(uint32_t i = 0; i < tryThis->children.size(); i++)
+		{
+			if(tryThis->children[i]->object[0] == sequence[0])
+			{
+				return tryThis->children[i];
+			}
+			else//look in children's children
+			{
+				findNode(tryThis->children[i]);
+			}
+
+		}	
+		return root;
+	}
+
+	int matchLength(string object)
+	{
+		int n = 0;//this will determine string length
+		for(uint32_t i = 0; i < sequence.length(); i++)//the sequencce length should be shorter
+		{
+			cout << object[i] << " < "  << sequence[i] << endl;
+			if(object[i] != sequence[i])
+				break;
+			n++;
+		}
+		return n;
+	}
+
+	void createChild()
+	{
+		cout << endl;
+		cout << "---------------------------" << endl;	
+		current = findNode(root);
+		int n = matchLength(current->object);
+		cout << "We are using this node " << current->node_id << endl;
+		cout << "Sequence: " << sequence << endl;
+		cout << "This object: " << current->object << endl;
+		current->children.push_back(new Node);//create a new child
+		Node *temp = current;
+		current = current->children[current->children.size() - 1];
+		current->parent = temp;
+
+		current->node_id = nodeCount;
+		nodeCount++;
+
+		string forCurrent = sequence;
+		cout << "forCurrent: " << forCurrent << endl;	
+		cout << "n: " << n << endl;
+		string forParent = forCurrent.substr(0, n);
+		//forCurrent.erase(0, n);
+
+		cout << "current: " << forCurrent << " forParent: " << forParent <<endl;
+
+		current->object = forCurrent;
+		current->parent->object = forParent;
+
+		if( n > 0)
+		{
+		current = current->parent;
+		current->children.push_back(new Node);
+		temp = current;
+		current = current->children[current->children.size() - 1];
+		current->parent = temp;
+		current->object = "$";
+		current->node_id = nodeCount;
+		nodeCount++;
+		}
+	
+
+		sequence.erase(0,1);
+	}
+
+	void buildTree()
+	{
+		cout << " Node count " << nodeCount << endl;
+		//this is how to end
+		if(seqPosition == sequence.length())
+			return;
+		if(nodeCount == 0)
+			createRoot();
+		else
+			createChild();
+
+	}
+
+
+	public:
+	Tree(string seq)
+	{
+		this->sequence = seq;
+		while(sequence.length() > 0)
+			buildTree();
+		print(root);
+	}
+
+	void print(Node *toPrint)
+	{
+		for(uint32_t i = 0; i < toPrint->children.size(); i++)
+			print(toPrint->children[i]);
+		if(toPrint->node_id != 0)//root will break things
+			cout << "Node: " << toPrint->node_id << " parent: " << toPrint->parent->node_id << " object: " << toPrint->object << endl;
+			
+		}
+	
 };
-
-void Tree::buildNaiveTree() {
-    //findNode function here
-}
-
-Node *Tree::findNode(Node *tryThis) {
-    //check the current string in the node for a match, this algo doesn't feel right
-//    for (uint32_t i = 0; i < currentSequence.size(); i++) {
-//        if (currentSequence[i] != tryThis->value[i])
-//            break;
-//        return (tryThis);
-//    }
-//    //actually traverse the tree is match is not found
-//    if (tryThis != nullptr) {
-//        for (uint32_t i = 0; i < tryThis->u.size(); i++) {
-//            findNode(tryThis->u[i]);
-//        }
-//    }
-        return root;
-}
-
-void Node::findPath(size_t i) {
-    //naive tree
-    char c = input[i];
-    if(u.find(c)==u.end()){
-        u[c] = new Node(input,this,i); // parts a and b
-        return ;
-    }// if this not in the chidren
-    u[c]-> compareInput(i); // j will be the npos if the edge label is exhausted
-//    cout<<"findPath(" << i << " ('" << input[i]<< "')) j=" << j << endl; // print the char
-}
-//compareInput will do: if mismatch, break the edge, create a new internal node, create new leaf for s under that node
-//then return
-void Node::compareInput(size_t iParent){
-    if(iParent == i){
-        return ; // return end of the child
-    }
-    //remember where the parent start and end
-    size_t iChild;
-    size_t jParent;
-    for(iChild = i, jParent =iParent ; iChild < j; jParent++, iChild++){
-        if(input[iChild] != input[jParent]){
-            break;
-        }
-    }
-    //the distance between iChild and i is the length of the match
-    //if iChild = j, then it's a compelete match otherwise split.
-    size_t matchLength = iChild - i;
-    if(iChild == j){
-        findPath(i+matchLength);
-        return;
-    }
-    //split  tail become the child
-    Node* tail = new Node(input,this,i+matchLength);
-    cout<< "node :: compareInput( iParent = " << iParent << ")" << endl;
-    tail->print();
-    u[input[i+matchLength]] = tail;
-    j = i + matchLength;
-    findPath(i+matchLength);
-}
-
-void Tree::print() const//this is currently VERY VERY rudimentary
-{
-root -> print(); // telling this root to print
-
-}
-
-Tree::Tree(string const &seq) :
-sequence(seq + "$"),
-root(new Node(sequence,nullptr))
-{
-    for(size_t i = 0; i < sequence.size();++i){
-        root->findPath(i);// add a child start with the ith char
-
-    }
-//    sequence.assign(seq);
-//    currentSequence.assign(seq);
-//    createHead();
-//    printTree();
-}
-

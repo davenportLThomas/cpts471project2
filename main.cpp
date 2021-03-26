@@ -2,7 +2,7 @@
 #include <fstream>
 #include <string>
 #include <vector>
-#include "tree.h"
+//#include "tree.h"
 #include "tree.cpp"
 using namespace std;
 
@@ -46,7 +46,6 @@ int main(int argc, char *argv[]) {
   
     cout << "name " <<nameOfInput << endl;
     Tree tree(sequence);
-    tree.print();
 
     return 0;
 }
