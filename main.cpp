@@ -47,6 +47,10 @@ int main(int argc, char *argv[]) {
     cout << "name " <<nameOfInput << endl;
     Tree tree(sequence);
     tree.print();
+    cout<< "all nodes" << endl;
+    for(auto &n: Node::nodes){
+       cout<< n -> tostring() << endl;
+    }
 
     return 0;
 }

@@ -3,34 +3,46 @@
 #include<vector>
 #include<string>
 #include<utility>
+#include <sstream>
 
 using namespace std;
 int Node::max_leaves = 0;
 int Node::max_nodes = 0;
+std::vector<Node*> Node:: nodes;
 Node::Node(string const &_input, Node *_uPrime, size_t _i,size_t _j):
 input(_input),
 uPrime(_uPrime),
 i(_i == string::npos ? 0: _i),// if we dont have the arg, return 0;
 j(_j== string::npos ? input.size(): _j),
 node_id(max_nodes++),
-leaf_id(max_leaves++)
+leaf_id(-1) // no leaf id until assigned
 {
 if(uPrime == nullptr) {
     //this is the root
 }else {
    // this is not the root
 }
+nodes.push_back(this); //
+}
+string Node::tostring() const {
+    std::stringstream out;
+    out<< " ( i = " << i
+        << ", j = " << j
+        << ", node_id = "<< node_id
+        << ", leaf_id= " << leaf_id
+        << ")" << input.substr(i,j-i) ;
+    return out.str();
 }
 void Node::print() const {
+
 //    for(size_t c = 0; c < u.size(); ++c){
 //        u[c] -> print();
 //    }
+    string const spaces("                                               ");
     if(uPrime != nullptr){
-        cout<< " ( i = " << i
-            << ", j = " << j
-            << ", node_id = "<< node_id
-            << ", leaf_id= " << leaf_id
-            << ")" << input.substr(i,j-i)<< endl;
+        cout<< spaces.substr(0,2*i);
+        cout<< tostring() << endl;
+
 
     }
     for (auto const kv: u){
@@ -76,6 +88,8 @@ void Node::findPath(size_t i) {
     char c = input[i];
     if(u.find(c)==u.end()){
         u[c] = new Node(input,this,i); // parts a and b
+        u[c] -> leaf_id = max_leaves++; //assgin a leaf id  the node is a leaf now
+        cout << "node :: findpath(" << i << "): "  << u[c] -> tostring()<< endl;
         return ;
     }// if this not in the chidren
     u[c]-> compareInput(i); // j will be the npos if the edge label is exhausted
@@ -95,25 +109,33 @@ void Node::compareInput(size_t iParent){
             break;
         }
     }
+    cout << "node :: compareInput(" << iParent << "): matchLinks = "<< iChild -i << ", " << tostring()<< endl;
+
     //the distance between iChild and i is the length of the match
     //if iChild = j, then it's a compelete match otherwise split.
     size_t matchLength = iChild - i;
     if(iChild == j){
+        cout << " matchs" << endl;
         findPath(i+matchLength);
         return;
     }
     //split  tail become the child
     Node* tail = new Node(input,this,i+matchLength);
-    cout<< "node :: compareInput( iParent = " << iParent << ")" << endl;
-    tail->print();
+    tail -> leaf_id = leaf_id; // change the leaf id of the tail
+    leaf_id = -1; //  if -1, this is a internal node
+//    cout<< "node :: compareInput( iParent = " << iParent << ")" << endl;
+//    tail->print();
     u[input[i+matchLength]] = tail;
     j = i + matchLength;
-    findPath(i+matchLength);
+    cout << "split: " << tostring() << ", " << tail->tostring()<< endl;
+//    findPath(i+matchLength);
 }
 
 void Tree::print() const//this is currently VERY VERY rudimentary
 {
+cout << " tree :: print" << endl;
 root -> print(); // telling this root to print
+
 
 }
 

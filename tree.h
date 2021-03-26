@@ -12,6 +12,7 @@ struct Node{
     void findPath(size_t i);
     void compareInput(size_t i);
     void print() const;// call print won't change the node
+    std::string tostring() const;
     std::string const &input;
     Node *uPrime;//parent
     Node *v;//suffix link
@@ -25,7 +26,7 @@ struct Node{
     std::map<char, Node*> u;//children
     static int max_nodes;
     static int max_leaves;
-
+    static std::vector<Node*> nodes;
 
 };
 class Tree{
