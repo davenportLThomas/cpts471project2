@@ -6,150 +6,172 @@
 #include <sstream>
 
 using namespace std;
-int Node::max_leaves = 0;
-int Node::max_nodes = 0;
-std::vector<Node*> Node:: nodes;
-Node::Node(string const &_input, Node *_uPrime, size_t _i,size_t _j):
-input(_input),
-uPrime(_uPrime),
-i(_i == string::npos ? 0: _i),// if we dont have the arg, return 0;
-j(_j== string::npos ? input.size(): _j),
-node_id(max_nodes++),
-leaf_id(-1) // no leaf id until assigned
+int Node::nextLeafId = 0;
+int Node::nextInternalId = 0;
+vector<Node *> Node::allNodes;
+vector<Node *> Node::allLeaves;
+
+Node::Node(Node *_parent, std::string const &_input, size_t _i, size_t _j):
+        parent(_parent),
+        input(_input),
+        i(_i),
+        j(_j == 0 ? input.size() : _j),
+        nodeId(0),
+        suffixLink(parent ? nullptr : this)
 {
-if(uPrime == nullptr) {
-    //this is the root
-}else {
-   // this is not the root
+    if (parent) {
+        parent->children[input[i]] = this;
+    }
+
+    // cout << allNodes.size() << ": " << ToString() << endl;
+    allNodes.push_back(this);
 }
-nodes.push_back(this); //
-}
-string Node::tostring() const {
+
+string Node::IdToString() const {
     std::stringstream out;
-    out<< " ( i = " << i
-        << ", j = " << j
-        << ", node_id = "<< node_id
-        << ", leaf_id= " << leaf_id
-        << ")" << input.substr(i,j-i) ;
+    if (nodeId <= 0) {
+        out << "U" << -nodeId;
+    } else {
+        out << "L" << nodeId;
+    }
     return out.str();
 }
-void Node::print() const {
 
-//    for(size_t c = 0; c < u.size(); ++c){
-//        u[c] -> print();
-//    }
-    string const spaces("                                               ");
-    if(uPrime != nullptr){
-        cout<< spaces.substr(0,2*i);
-        cout<< tostring() << endl;
-
-
+string Node::ToString() const {
+    std::stringstream out;
+    out << "nodeId=" << IdToString()
+        << ", parentId=" << (parent ? parent->IdToString() : "<none>")
+        << ", depth=" << Depth();
+    if (!IsALeaf()) {
+        out << ", suffixLink=" << (suffixLink ? suffixLink->IdToString() : "<unknown>");
     }
-    for (auto const kv: u){
-        kv.second->print();
-    }
-
-
-}
-void Tree::createHead() {
-//    root = new Node;
-//    root->v = nullptr;
-//    current = root;
-//    current->value = "ROOT";
-//    current->id = -1;//the head it -1
-//    current->string_depth = 0;
-//    nodeCount = 1;
-//    //lets build a tree
-//    buildNaiveTree();
-};
-
-void Tree::buildNaiveTree() {
-    //findNode function here
+    out << ", i=" << i
+        << ", j=" << j
+        << ", '" << input.substr(i, j - i)
+        << "'";
+    return out.str();
 }
 
-Node *Tree::findNode(Node *tryThis) {
-    //check the current string in the node for a match, this algo doesn't feel right
-//    for (uint32_t i = 0; i < currentSequence.size(); i++) {
-//        if (currentSequence[i] != tryThis->value[i])
-//            break;
-//        return (tryThis);
-//    }
-//    //actually traverse the tree is match is not found
-//    if (tryThis != nullptr) {
-//        for (uint32_t i = 0; i < tryThis->u.size(); i++) {
-//            findNode(tryThis->u[i]);
-//        }
-//    }
-        return root;
-}
-
-void Node::findPath(size_t i) {
-    //naive tree
-    char c = input[i];
-    if(u.find(c)==u.end()){
-        u[c] = new Node(input,this,i); // parts a and b
-        u[c] -> leaf_id = max_leaves++; //assgin a leaf id  the node is a leaf now
-        cout << "node :: findpath(" << i << "): "  << u[c] -> tostring()<< endl;
-        return ;
-    }// if this not in the chidren
-    u[c]-> compareInput(i); // j will be the npos if the edge label is exhausted
-//    cout<<"findPath(" << i << " ('" << input[i]<< "')) j=" << j << endl; // print the char
-}
-//compareInput will do: if mismatch, break the edge, create a new internal node, create new leaf for s under that node
-//then return
-void Node::compareInput(size_t iParent){
-    if(iParent == i){
-        return ; // return end of the child
-    }
-    //remember where the parent start and end
-    size_t iChild;
-    size_t jParent;
-    for(iChild = i, jParent =iParent ; iChild < j; jParent++, iChild++){
-        if(input[iChild] != input[jParent]){
-            break;
+size_t Node::lengthOfLongestMatch(size_t iParent) const {
+    for (size_t iChild = i; iChild < j; ++iChild, ++iParent) {
+        if (input[iChild] != input[iParent]) {
+            return iChild - i;
         }
     }
-    cout << "node :: compareInput(" << iParent << "): matchLinks = "<< iChild -i << ", " << tostring()<< endl;
+    return j;
+}
+Node* Node::NodeHops(size_t bPrime){
+    Node* path = children[input[bPrime]];
+    return Match(bPrime);
+}
+void Node::FindPath(size_t i) {
+    char firstChar(input[i]);
+    if (children[firstChar] == nullptr) {
+        Node *child = new Node(this, input, i);
+        child->nodeId = ++nextLeafId;
+        allLeaves.push_back(child);
 
-    //the distance between iChild and i is the length of the match
-    //if iChild = j, then it's a compelete match otherwise split.
-    size_t matchLength = iChild - i;
-    if(iChild == j){
-        cout << " matchs" << endl;
-        findPath(i+matchLength);
+        if (parent -> parent) { // parent
+            if (parent->suffixLink) {
+                // Case I.A: SL(u) is known, u' is not root.
+                //the new child's first letter index
+                suffixLink->FindPath(child->i);
+
+            } else {
+                // Case II.A: SL(u) is unknown, u' is not root.
+                //get the gradparent
+                Node* UPrime = parent->parent;
+                Node* VPrime =  UPrime-> suffixLink;
+                Node* v = VPrime -> NodeHops(child -> i);
+                parent-> suffixLink = v;
+                v->FindPath(child->i);
+            }
+        } else {
+            if (suffixLink) {
+
+                // Case I.B: SL(u) is known, u' is root.
+                //no parent  we already have the
+                //i is the current
+                suffixLink->FindPath(child -> i);
+            } else {
+
+                // Case II.B: SL(u) is unknown, u' is root.
+                Node* UPrime = parent->parent;
+                Node* VPrime =  UPrime-> suffixLink;
+                Node* v = VPrime -> NodeHops(child -> i);
+                parent-> suffixLink = v;
+                v->FindPath(child->i);
+            }
+        }
         return;
     }
-    //split  tail become the child
-    Node* tail = new Node(input,this,i+matchLength);
-    tail -> leaf_id = leaf_id; // change the leaf id of the tail
-    leaf_id = -1; //  if -1, this is a internal node
-//    cout<< "node :: compareInput( iParent = " << iParent << ")" << endl;
-//    tail->print();
-    u[input[i+matchLength]] = tail;
-    j = i + matchLength;
-    cout << "split: " << tostring() << ", " << tail->tostring()<< endl;
-//    findPath(i+matchLength);
+    Node *child = children[firstChar];
+    child->Match(i);
 }
 
-void Tree::print() const//this is currently VERY VERY rudimentary
-{
-cout << " tree :: print" << endl;
-root -> print(); // telling this root to print
+Node* Node::Match(size_t iParent) {
+    size_t matchLength = lengthOfLongestMatch(iParent);
 
+    // cout << "Node::FindPath(iTh=" << iParen
+    //      << " (\'" << input[i]
+    //      << "\')): matches " << matchLength
+    //      << " of Node " << ToString()
+    //      << endl;
 
-}
+    if (matchLength < length()) {
+        size_t parentSplitAt = iParent + matchLength;
+        size_t splitAt = i + matchLength;
+        Node *head = new Node(parent, input, i, splitAt);
+        head->children[input[splitAt]] = this;
+        parent = head;
+        i = splitAt;
 
-Tree::Tree(string const &seq) :
-sequence(seq + "$"),
-root(new Node(sequence,nullptr))
-{
-    for(size_t i = 0; i < sequence.size();++i){
-        root->findPath(i);// add a child start with the ith char
+        head->nodeId = --nextInternalId;
 
+        Node *leaf = new Node(head, input, parentSplitAt);
+
+        leaf->nodeId = ++nextLeafId;
+        allLeaves.push_back(leaf);
+        return head;
+    } else {
+        FindPath(i + matchLength);
     }
-//    sequence.assign(seq);
-//    currentSequence.assign(seq);
-//    createHead();
-//    printTree();
+    return this;
 }
 
+void Node::Display() const {
+    size_t depth = Depth();
+    static string const indentation
+            ("                                                                                ");
+    cout << indentation.substr(0, 4 * depth)
+         << "[" << (parent ? input[i] : '^')
+         << "] " << ToString()
+         << endl;
+    for (auto const &c: children) {
+        c.second->Display();
+    }
+}
+
+SuffixTree::SuffixTree(string const &_input, string const &_alphabet):
+        input(_input + "$"),
+        alphabet(_alphabet),
+        root(new Node(nullptr, input))
+{
+    cout << "SuffixTree::SuffixTree(input=" << _input << ", alphabet=" << alphabet << endl;
+    cout << "SuffixTree::SuffixTree(): initial:" << endl;
+    Display();
+
+    for (size_t i = 0; i < input.size(); ++i) {
+        root->FindPath(i);
+
+        cout << endl
+             << "SuffixTree::SuffixTree(): after insertion #" << i
+             << ", '" << input.substr(i)
+             << "'" << endl;
+        Display();
+    }
+}
+
+void SuffixTree::Display() const {
+    root->Display();
+}

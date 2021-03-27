@@ -1,56 +1,44 @@
+#include "tree.h"
 #include <iostream>
 #include <fstream>
-#include <string>
-#include <vector>
-#include "tree.h"
 #include "tree.cpp"
-using namespace std;
+using std::cerr;
+using std::cout;
+using std::endl;
+using std::ifstream;
+using std::string;
 
-struct suffixTree{
-    
-};
-
-void readInput(ifstream &file, string &sequence, string &name) {
-    vector<string> lines;
-    string templine;
-    getline(file, name);
-    sequence = "";
-    getline(file, templine);
-    while (isalpha(templine[0])) {
-        lines.push_back(templine);
-        getline(file, templine);
-    }
-    for(size_t i = 0; i< lines.size()-1; i++){
-        templine = lines[i];
-        sequence += templine;
-    }
-    sequence += lines[lines.size()-1];
-}
-int main(int argc, char *argv[]) {
-    ifstream input(argv[1]);
-    if (!input.is_open()) {
-        cout << "not  open 1: alphabet" << endl;
-        return 1;
-    }
-    ifstream input2(argv[2]);
-    if (!input2.is_open()){
-        cout << "not  open 2: alphabet " << endl;
-        return 1;
-    }
-    string alphabet;
-    getline(input2,alphabet);
-    cout << alphabet<< endl;
-    string nameOfInput;
-    string sequence;
-    readInput(input, sequence, nameOfInput);
-  
-    cout << "name " <<nameOfInput << endl;
-    Tree tree(sequence);
-    tree.print();
-    cout<< "all nodes" << endl;
-    for(auto &n: Node::nodes){
-       cout<< n -> tostring() << endl;
+int main(int argc, char *const argv[]) {
+    ifstream fString(argv[1]);
+    if (!fString.is_open()) {
+        cerr << "Unable to open string input!" << endl;
+        exit(1);
     }
 
+    ifstream fAlphabet(argv[2]);
+    if (!fAlphabet.is_open()) {
+        cerr << "Unable to open alphabet input!" << endl;
+        exit(1);
+    }
+
+    string iString;
+    string iAlphabet;
+    getline(fString, iString);
+    getline(fAlphabet, iAlphabet);
+
+    SuffixTree tree(iString, iAlphabet);
+
+    cout << endl << "All nodes:" << endl;
+    for (size_t i = 0; i < Node::allNodes.size(); ++i) {
+        cout << i << ": " << Node::allNodes[i]->ToString() << endl;
+    }
+
+    cout << endl << "All leaves:" << endl;
+    for (size_t i = 0; i < Node::allLeaves.size(); ++i) {
+        cout << i << ": " << Node::allLeaves[i]->ToString() << endl;
+    }
+
+    cout << endl << "Tree:" << endl;
+    tree.Display();
     return 0;
 }
