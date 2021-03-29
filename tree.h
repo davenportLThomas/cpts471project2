@@ -11,12 +11,14 @@
 class Node {
 public:
     Node(Node *_parent, std::string const &_input, size_t _i = 0, size_t _j = 0);
+    Node *getRoot();
     size_t length() const { return j - i; }
     size_t lengthOfLongestMatch(size_t iParent) const;
     std::string ToString() const;
     std::string IdToString() const;
-    Node* Match(size_t iParent);
-    Node* NodeHops(size_t bPrime); // use root point to nodehops
+    void Match(size_t iParent);
+    void NodeHops(Node *linkFrom, size_t iBetaPrime, size_t jBetaPrime);
+
     bool IsALeaf() const { return nodeId > 0; }
     void Display() const;
     void DisplayStringDepth() const;
@@ -36,6 +38,7 @@ public:
 
     static std::vector<Node *> allNodes;
     static std::vector<Node *> allLeaves;
+    static Node *lastNewInternalNode;
 
 protected:
     Node *parent;                 // nullptr if this is the root
@@ -68,4 +71,5 @@ protected:
     // Node uPrime;                  // Parent of u (if one exists)
     // Node vPrime;                  // SL(uPrime) - maight be parent of v
 };
-#endif //CPTS471PROJECT2_TREE_H
+
+#endif // #ifndef
