@@ -17,6 +17,7 @@ vector<Node *> Node::allNodes;
 vector<Node *> Node::allLeaves;
 //Node *Node::lastNewInternalNode = nullptr;
 
+//use size t to store the max size
 Node::Node(Node *_parent, std::string const &_input, size_t _i, size_t _j):
         parent(_parent),
         input(_input),
@@ -51,7 +52,7 @@ string Node::IdToString() const {
     }
     return out.str();
 }
-
+//print out the tree and parent
 string Node::ToString() const {
     std::stringstream out;
     out << "nodeId=" << IdToString()
@@ -94,7 +95,7 @@ void Node::FindPath(size_t iPath) {
         child->Match(iPath);
     }
 }
-
+// trying to meet 4 cases of the suffix link
 void Node::Match(size_t iParent) {
     size_t matchLength = lengthOfLongestMatch(iParent);
 
@@ -174,7 +175,7 @@ void Node::Display() const {
         c.second->Display();
     }
 }
-
+//constructing the  suffix tree
 SuffixTree::SuffixTree(string const &_input, string const &_alphabet):
         input(_input + "$"),
         alphabet(_alphabet),
