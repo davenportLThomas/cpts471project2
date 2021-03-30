@@ -7,6 +7,22 @@ using std::cout;
 using std::endl;
 using std::ifstream;
 using std::string;
+void readInput(ifstream &file, string &sequence, string &name) {
+    vector<string> lines;
+    string templine;
+    getline(file, name);
+    sequence = "";
+    getline(file, templine);
+    while (isalpha(templine[0])) {
+        lines.push_back(templine);
+        getline(file, templine);
+    }
+    for(int i = 0; i< lines.size()-1; i++){
+        templine = lines[i];
+        sequence += templine;
+    }
+    sequence += lines[lines.size()-1];
+}
 
 int main(int argc, char *const argv[]) {
     ifstream fString(argv[1]);
@@ -23,8 +39,10 @@ int main(int argc, char *const argv[]) {
 
     string iString;
     string iAlphabet;
-    getline(fString, iString);
+    string name;
+    readInput(fString,iString,name);
     getline(fAlphabet, iAlphabet);
+
 
     SuffixTree tree(iString, iAlphabet);
 

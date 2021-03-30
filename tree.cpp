@@ -15,7 +15,7 @@ int Node::nextLeafId = 0;
 int Node::nextInternalId = 0;
 vector<Node *> Node::allNodes;
 vector<Node *> Node::allLeaves;
-Node *Node::lastNewInternalNode = nullptr;
+//Node *Node::lastNewInternalNode = nullptr;
 
 Node::Node(Node *_parent, std::string const &_input, size_t _i, size_t _j):
         parent(_parent),
@@ -27,6 +27,7 @@ Node::Node(Node *_parent, std::string const &_input, size_t _i, size_t _j):
 {
     assert(j <= input.size());
     assert(i <= j);
+
 
     if (parent) {
         parent->children[input[i]] = this;
