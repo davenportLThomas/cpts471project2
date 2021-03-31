@@ -2,6 +2,7 @@
 #include <iostream>
 #include <fstream>
 #include "tree.cpp"
+#include <chrono>
 using std::cerr;
 using std::cout;
 using std::endl;
@@ -25,6 +26,8 @@ void readInput(ifstream &file, string &sequence, string &name) {
 }
 
 int main(int argc, char *const argv[]) {
+    // Start measuring time
+    auto begin = std::chrono::high_resolution_clock::now();
     ifstream fString(argv[1]);
     if (!fString.is_open()) {
         cerr << "Unable to open string input!" << endl;
@@ -46,17 +49,21 @@ int main(int argc, char *const argv[]) {
 
     SuffixTree tree(iString, iAlphabet);
 
-    cout << endl << "All nodes:" << endl;
-    for (size_t i = 0; i < Node::allNodes.size(); ++i) {
-        cout << i << ": " << Node::allNodes[i]->ToString() << endl;
-    }
+//    cout << endl << "All nodes:" << endl;
+//    for (size_t i = 0; i < Node::allNodes.size(); ++i) {
+//        cout << i << ": " << Node::allNodes[i]->ToString() << endl;
+//    }
+//
+//    cout << endl << "All leaves:" << endl;
+//    for (size_t i = 0; i < Node::allLeaves.size(); ++i) {
+//        cout << i << ": " << Node::allLeaves[i]->ToString() << endl;
+//    }
 
-    cout << endl << "All leaves:" << endl;
-    for (size_t i = 0; i < Node::allLeaves.size(); ++i) {
-        cout << i << ": " << Node::allLeaves[i]->ToString() << endl;
-    }
-
-    cout << endl << "Tree:" << endl;
-    tree.Display();
+//    cout << endl << "Tree:" << endl;
+//    tree.Display();
+    // Stop measuring time and calculate the elapsed time
+    auto end = std::chrono::high_resolution_clock::now();
+    auto elapsed = std::chrono::duration_cast<std::chrono::nanoseconds>(end - begin);
+    printf("Time measured: %.3f seconds.\n", elapsed.count() * 1e-9);
     return 0;
 }

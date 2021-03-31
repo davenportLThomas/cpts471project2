@@ -167,10 +167,10 @@ void Node::Display() const {
     size_t depth = Depth();
     static string const indentation
             ("                                                                                ");
-    cout << indentation.substr(0, 4 * depth)
-         << "[" << (parent ? input[i] : '^')
-         << "] " << ToString()
-         << endl;
+//    cout << indentation.substr(0, 4 * depth)
+//         << "[" << (parent ? input[i] : '^')
+//         << "] " << ToString()
+//         << endl;
     for (auto const &c: children) {
         c.second->Display();
     }
@@ -181,18 +181,18 @@ SuffixTree::SuffixTree(string const &_input, string const &_alphabet):
         alphabet(_alphabet),
         root(new Node(nullptr, input))
 {
-    cout << "SuffixTree::SuffixTree(input=" << _input << ", alphabet=" << alphabet << endl;
-    cout << "SuffixTree::SuffixTree(): initial:" << endl;
-    Display();
+//    cout << "SuffixTree::SuffixTree(input=" << _input << ", alphabet=" << alphabet << endl;
+//    cout << "SuffixTree::SuffixTree(): initial:" << endl;
+//    Display();
 
     for (size_t i = 0; i < input.size(); ++i) {
         root->FindPath(i);
-
-        cout << endl
-             << "SuffixTree::SuffixTree(): after insertion #" << i
-             << ", '" << input.substr(i)
-             << "'" << endl;
-        Display();
+//
+//        cout << endl
+//             << "SuffixTree::SuffixTree(): after insertion #" << i
+//             << ", '" << input.substr(i)
+//             << "'" << endl;
+//        Display();
     }
 }
 
