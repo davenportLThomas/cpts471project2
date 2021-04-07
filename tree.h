@@ -11,24 +11,38 @@
 class Node {
 public:
     Node(Node *_parent, std::string const &_input, size_t _i = 0, size_t _j = 0);
+
     Node *getRoot();
+
     size_t length() const { return j - i; }
+
     size_t lengthOfLongestMatch(size_t iParent) const;
+
     std::string ToString() const;
+
     std::string IdToString() const;
+
     void Match(size_t iParent);
+
     void NodeHops(Node *linkFrom, size_t iBetaPrime, size_t jBetaPrime);
 
     bool IsALeaf() const { return nodeId > 0; }
+
     void Display() const;
+
     void DisplayStringDepth() const;
+
     void DisplayBWTIndex() const;
 
+    // to do the processing the child if node is a leaf return the color
+    // -1 means doesn't have color or color we dont know
+    int p2_process();
     // FindPath(args): finds the path starting at the specified node
     // argument that spells out the longest possible prefix of the
     // specified string argument, and then insert the next suffix.
 
     void FindPath(size_t i);
+
     size_t Depth() const { return parent ? parent->Depth() + 1 : 0; }
 
     // NodeHops(args): does node hopping child to child until string
@@ -39,12 +53,14 @@ public:
     static std::vector<Node *> allNodes;
     static std::vector<Node *> allLeaves;
     static Node *lastNewInternalNode;
+    static int current_color = 0; // internal code will be -1, each time if there is a $, we increase current color, node after $ will get new color
 
 protected:
     Node *parent;                 // nullptr if this is the root
     std::string const &input;     // the original input + "$"
     size_t i;                     // Index of start of the parent-to-here edge label
     size_t j;                     // Index of end of the parent-to-here edge label
+    int color;                      // color for the node
     int nodeId;                   // the node id (across all nodes)
     Node *suffixLink;
     std::map<char, Node *> children; // Nodes of any children, index by 1st character
@@ -56,12 +72,16 @@ protected:
 class SuffixTree {
 public:
     SuffixTree(std::string const &_input, std::string const &_alphabet);
+
     std::string ToString() const;
 
     void Display() const;
+
     void DisplayStringDepth() const;
+
     void DisplayBWTIndex() const;
 
+    void p2_process_children();
 protected:
     std::string const input;
     std::string const alphabet;
